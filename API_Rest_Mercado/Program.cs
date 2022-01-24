@@ -14,7 +14,7 @@ namespace API_Rest_Mercado
 {
     public class Program
     {
-        public static void Main(string[] args)
+       public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
 
@@ -23,11 +23,13 @@ namespace API_Rest_Mercado
             {
                 context.Database.EnsureCreated();
             }
+
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+            .UseStartup<Startup>()
+            .Build();
     }
 }

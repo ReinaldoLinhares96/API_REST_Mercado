@@ -9,12 +9,12 @@ namespace API_Rest_Mercado.Domains.Services
 {
     public interface ICategoryService
     {
-        public Task<IEnumerable<Category>> ListAsync();
+        Task<IEnumerable<Category>> ListAsync();
 
-        public Task<SaveCategoryResponse> SaveAsync(Category category);
+        Task<SaveCategoryResponse> SaveAsync(Category category);
 
-        public Task<SaveCategoryResponse> UpdateAsync(int id, Category category);
+        Task<SaveCategoryResponse> UpdateAsync(int id, Category category);
 
-        public Task<SaveCategoryResponse> DeleteAsync(int id);
+        Task<SaveCategoryResponse> DeleteAsync(int id);
     }
 }
