@@ -16,6 +16,13 @@ using API_Rest_Mercado.Domains.Services;
 using API_Rest_Mercado.Domains.Repositories;
 using API_Rest_Mercado.Persistence.Repositories;
 using AutoMapper;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+
 
 namespace API_Rest_Mercado
 {
@@ -31,7 +38,35 @@ namespace API_Rest_Mercado
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                    
+            services.AddMvc(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                config.Filters.Add(new AuthorizeFilter(policy));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = Configuration["Authentication:Issuer"],
+
+                        ValidateAudience = true,
+                        ValidAudience = Configuration["Authentication:Audience"],
+
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:SecretKey"])),
+
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             services.AddDbContext<AppDbContext>(options => {
                 options.UseInMemoryDatabase("supermarket-api-in-memory");
@@ -39,6 +74,7 @@ namespace API_Rest_Mercado
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+           // services.AddSingleton<IConfiguration>(Configuration);
 
             services.AddScoped<ICategoryService, CategoryService>();
 
@@ -58,6 +94,7 @@ namespace API_Rest_Mercado
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
